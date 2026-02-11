@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: Spring AI
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+    chat:
+      option:
+        model: gpt-4
