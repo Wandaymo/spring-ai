@@ -4,6 +4,9 @@
 #Ide
 .idea
 
+#MacOS
+*.DS_Store
+
 #Maven
 mvnw
 .mvn
