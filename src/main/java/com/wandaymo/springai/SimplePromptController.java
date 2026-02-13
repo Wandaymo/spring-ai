@@ -18,7 +18,6 @@ public class SimplePromptController {
     @GetMapping("/")
     public String simple(@RequestParam(value = "message") String message) {
         ChatResponse chatResponse = chatClient.prompt().user(message).call().chatResponse();
-        return chatResponse.toString();
-
+        return String.valueOf(chatResponse);
     }
 }
