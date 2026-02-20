@@ -1,12 +1,9 @@
 package com.wandaymo.springai;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.converter.MapOutputConverter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,11 +19,9 @@ import java.util.Objects;
 public class BooksController {
 
     private final ChatClient chatClient;
-    private final ChatModel chatModel;
 
-    public BooksController(ChatClient.Builder chatClientBuilder, ChatModel chatModel) {
+    public BooksController(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
-        this.chatModel = chatModel;
     }
 
     @GetMapping("/author/{author}")
@@ -52,16 +47,11 @@ public class BooksController {
         var message = """
                 Generate a list of books written by the author {author}. If you aren't positive that a book belongs to
                 this author please don't include it.
-                {format}
                 """;
 
-        var beanOutputConverter = new BeanOutputConverter<>(Author.class);
-        String format = beanOutputConverter.getFormat();
-
-        Generation generation = chatModel.call(
-                PromptTemplate.builder().template(message).variables(Map.of("author", author, "format", format))
-                        .build().create()).getResult();
-        assert generation.getOutput().getText() != null;
-        return beanOutputConverter.convert(generation.getOutput().getText());
+        return chatClient.prompt()
+                .user(u -> u.text(message).param("author", author))
+                .call()
+                .entity(Author.class);
     }
 }
